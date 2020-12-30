@@ -1,1 +1,28 @@
 /* You can add global styles to this file, and also import other style files */
+body {
+  margin: 0;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-direction-column {
+  flex-direction: column;
+}
+
+.justify-content-space-between {
+  justify-content: space-between;
+}
+
+.margin-left-sm {
+  margin-left: 0.25vw;
+}
+
+.margin-right-sm {
+  margin-right: 0.25vw;
+}
+
+.margin-right-md {
+  margin-right: 0.5vw;
+}

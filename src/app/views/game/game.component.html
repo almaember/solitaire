@@ -1,0 +1,53 @@
+<main class="table">    
+    <article id="topTable" class="flex justify-content-space-between top-table-margin-bottom-lg ">
+
+        <article id="stockAndTalon" class="flex">
+            <div id="stock" class="margin-right-sm" (click)="flipACardFromAStock()">
+                <img class="card-size" src="assets/img/cardBack/Card_back_01.svg" alt="Back of the cards">
+            </div>
+            <div id="talon" *ngFor="let card of talon; last as isLast">   
+                <img *ngIf="isLast" 
+                     class="card-size" 
+                     src="assets/img/cards/{{card.cardName}}.svg" 
+                     alt="Top of the deck" 
+                     draggable="true" 
+                     (dragstart)="drag($event, card)"
+                >       
+            </div>
+        </article>  
+
+        <article id="foundations" class="flex">  
+            <article *ngFor="let foundation of foundations; let i = index" (drop)="drop($event)" (dragover)="allowDrop($event)">
+                <div class="card-size foundation" id="{{i}}">   
+                     <img *ngIf="foundation.length > 0" 
+                          class="card-size" 
+                          id="{{i}}"
+                          src="assets/img/cards/{{foundation[foundation.length - 1].cardName}}.svg" 
+                          alt="Foundation card"
+                     >                    
+                </div>      
+            </article>    
+        </article> 
+
+    </article>
+
+    <article id="bottomTable" class="flex">
+        <article *ngFor="let column of tableau" class="margin-right-md">
+            <div *ngFor="let card of column; last as isLast; first as isFirst" [ngClass]="{'cards-on-top-of-each-other':!isFirst}">
+                <img *ngIf="!isLast" 
+                     class="card-size" 
+                     src="assets/img/cardBack/Card_back_01.svg" 
+                     alt="Tableau card"
+                > 
+                <img *ngIf="isLast" 
+                     class="card-size" 
+                     id="{{card.cardName}}" 
+                     src="assets/img/cards/{{card.cardName}}.svg" 
+                     alt="Tableau card" 
+                     draggable="true" 
+                     (dragstart)="drag($event, card)"
+                > 
+            </div>
+        </article>        
+    </article>
+</main>
