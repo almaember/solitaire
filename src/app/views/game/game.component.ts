@@ -32,8 +32,7 @@ export class GameComponent implements OnInit, OnDestroy {
         };
       };  
 
-    };
-    
+    };    
   }
 
   ngOnDestroy() {
@@ -50,7 +49,7 @@ export class GameComponent implements OnInit, OnDestroy {
     event.dataTransfer.setData("tableauColumnIndex", tableauColumnIndex);
   }  
 
-  drop(event) {    
+  dropToFoundation(event) {    
     event.preventDefault(); 
 
     const card: Card = JSON.parse(event.dataTransfer.getData("card"));
@@ -60,21 +59,53 @@ export class GameComponent implements OnInit, OnDestroy {
     this.validateFoundation(foundationIndex, card, tableauColumnIndex);    
   }
 
+  dropToTableauColumn(event, tableauColumnIndex: number) {
+    event.preventDefault(); 
+    const card: Card = JSON.parse(event.dataTransfer.getData("card"));     
+    this.validateTableau(tableauColumnIndex, card);
+  }
+
   allowDrop(event) {
     event.preventDefault();
   }
 
-  validateFoundation(foundationIndex: number, card: Card, tableauColumnIndex?: number) {
+  removeTopCardFromTableauColumn = (tableauColumnIndex: number) => this.tableau[tableauColumnIndex].pop();
+
+  removeTopCardFromTalon = () => this.talon.pop(); 
   
-    if(this.foundations[foundationIndex].length + 1 === card.value) {
+  validateFoundation(foundationIndex: number, card: Card, tableauColumnIndex?: number) {
+
+    const increasing: boolean = this.foundations[foundationIndex].length + 1 === card.value;
+    const foundationIsNotEmpty: boolean = this.foundations[foundationIndex].length !== 0
+    let cardTypeIdentical: boolean;
+    
+    if(foundationIsNotEmpty) {
+      cardTypeIdentical = this.foundations[foundationIndex][0].type === card.type;
+    } else {
+      cardTypeIdentical = true;
+    }
+
+    if(increasing && cardTypeIdentical) {
 
       if(!isNaN(tableauColumnIndex)) {     
-        this.tableau[tableauColumnIndex].pop();
+        this.removeTopCardFromTableauColumn(tableauColumnIndex)
       } else {            
-        this.talon.pop();  
+        this.removeTopCardFromTalon();
       } 
+
       this.foundations[foundationIndex].push(card);
     }
+  }
+
+  validateTableau(tableauColumnIndex:number, card: Card) {
+    const lastCardInTheTableauColumn = this.tableau[tableauColumnIndex][this.tableau[tableauColumnIndex].length - 1];
+    const decreasing = (lastCardInTheTableauColumn.value - 1) === card.value;
+    const mismatchColor = lastCardInTheTableauColumn.color !== card.color;
+
+    if( decreasing && mismatchColor) {    
+      this.removeTopCardFromTalon();
+      this.tableau[tableauColumnIndex].push(card);
+    } 
   }
 
 

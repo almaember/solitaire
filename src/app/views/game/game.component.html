@@ -17,7 +17,7 @@
         </article>  
 
         <article id="foundations" class="flex">  
-            <article *ngFor="let foundation of foundations; let i = index" (drop)="drop($event)" (dragover)="allowDrop($event)">
+            <article id="foundation" *ngFor="let foundation of foundations; let i = index" (drop)="dropToFoundation($event)" (dragover)="allowDrop($event)">
                 <div class="card-size foundation" id="{{i}}">   
                      <img *ngIf="foundation.length > 0" 
                           class="card-size" 
@@ -32,7 +32,7 @@
     </article>
 
     <article id="bottomTable" class="flex">
-        <article *ngFor="let column of tableau; let tableauColumnIndex = index" class="margin-right-md">
+        <article id="tableauColumn" *ngFor="let column of tableau; let tableauColumnIndex = index" class="margin-right-md">
             <div *ngFor="let card of column; last as isLast; first as isFirst" [ngClass]="{'cards-on-top-of-each-other':!isFirst}">
                 <img *ngIf="!isLast" 
                      class="card-size" 
@@ -46,6 +46,8 @@
                      alt="Tableau card" 
                      draggable="true" 
                      (dragstart)="drag($event, card , tableauColumnIndex)"
+                     (drop)="dropToTableauColumn($event, tableauColumnIndex)" 
+                     (dragover)="allowDrop($event)"
                 > 
             </div>
         </article>        
