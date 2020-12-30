@@ -3,13 +3,13 @@
 
         <article id="stockAndTalon" class="flex">
             <div id="stock" class="margin-right-sm" (click)="flipACardFromAStock()">
-                <img class="card-size" src="assets/img/cardBack/Card_back_01.svg" alt="Back of the cards">
+                <img class="card-size" src="assets/img/cardBack/Card_back_01.svg" alt="Back of the cards" draggable="false">
             </div>
             <div id="talon" *ngFor="let card of talon; last as isLast">   
                 <img *ngIf="isLast" 
                      class="card-size" 
                      src="assets/img/cards/{{card.cardName}}.svg" 
-                     alt="Top of the deck" 
+                     alt="Top of the deck"  
                      draggable="true" 
                      (dragstart)="drag($event, card)"
                 >       
@@ -32,7 +32,7 @@
     </article>
 
     <article id="bottomTable" class="flex">
-        <article *ngFor="let column of tableau" class="margin-right-md">
+        <article *ngFor="let column of tableau; let tableauColumnIndex = index" class="margin-right-md">
             <div *ngFor="let card of column; last as isLast; first as isFirst" [ngClass]="{'cards-on-top-of-each-other':!isFirst}">
                 <img *ngIf="!isLast" 
                      class="card-size" 
@@ -45,7 +45,7 @@
                      src="assets/img/cards/{{card.cardName}}.svg" 
                      alt="Tableau card" 
                      draggable="true" 
-                     (dragstart)="drag($event, card)"
+                     (dragstart)="drag($event, card , tableauColumnIndex)"
                 > 
             </div>
         </article>        

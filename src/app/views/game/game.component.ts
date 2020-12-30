@@ -45,25 +45,37 @@ export class GameComponent implements OnInit, OnDestroy {
     this.talon.push(flippedCard);
   }
 
-  drag(event, card: Card) {    
+  drag(event, card: Card, tableauColumnIndex: number) {    
     event.dataTransfer.setData("card", JSON.stringify(card));
-  }
+    event.dataTransfer.setData("tableauColumnIndex", tableauColumnIndex);
+  }  
 
   drop(event) {    
-    event.preventDefault();    
-    const card: Card = JSON.parse(event.dataTransfer.getData("card"));  
-    const foundationIndex: number = event.target.id;
-    console.log("foundation INDEX", foundationIndex);
-    this.validateFoundation(foundationIndex, card);    
+    event.preventDefault(); 
+
+    const card: Card = JSON.parse(event.dataTransfer.getData("card"));
+    const tableauColumnIndex:number = parseInt(event.dataTransfer.getData("tableauColumnIndex"));
+    const foundationIndex: number = parseInt(event.target.id);   
+
+    this.validateFoundation(foundationIndex, card, tableauColumnIndex);    
   }
 
   allowDrop(event) {
     event.preventDefault();
   }
 
-  validateFoundation(foundationIndex: number, card: Card) {
-    if(this.foundations[foundationIndex].length + 1 === card.value){
+  validateFoundation(foundationIndex: number, card: Card, tableauColumnIndex?: number) {
+  
+    if(this.foundations[foundationIndex].length + 1 === card.value) {
+
+      if(!isNaN(tableauColumnIndex)) {     
+        this.tableau[tableauColumnIndex].pop();
+      } else {            
+        this.talon.pop();  
+      } 
       this.foundations[foundationIndex].push(card);
-    }      
+    }
   }
+
+
 }
