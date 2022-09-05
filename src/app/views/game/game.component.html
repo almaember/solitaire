@@ -8,7 +8,7 @@
             </div>
             <div id="talon" *ngFor="let card of talon; last as isLast">
                 <img *ngIf="isLast" class="card-size" src="assets/img/cards/{{card.cardName}}.svg" alt="Top of the deck"
-                    draggable="true" (dragstart)="drag($event, card)">
+                    draggable="true" (dragstart)="onCardDragged($event, card)">
             </div>
         </article>
 
@@ -27,12 +27,12 @@
     <article id="bottomTable" class="flex">
         <article id="tableauColumn" *ngFor="let column of tableau; let tableauColumnIndex = index"
             class="margin-right-md">
-            <div *ngFor="let card of column; last as isLast; first as isFirst"
-                [ngClass]="{'cards-on-top-of-each-other':!isFirst}">
-                <img *ngIf="!isLast" class="card-size" src="assets/img/cardBack/Card_back_01.svg" alt="Tableau card">
-                <img *ngIf="isLast" class="card-size" id="{{card.cardName}}"
+            <div *ngFor="let card of column; first as isFirst" [ngClass]="{'cards-on-top-of-each-other':!isFirst}">
+                <img *ngIf="!card.visible" class="card-size" src="assets/img/cardBack/Card_back_01.svg"
+                    alt="Tableau card">
+                <img *ngIf="card.visible" class="card-size" id="{{card.cardName}}"
                     src="assets/img/cards/{{card.cardName}}.svg" alt="Tableau card" draggable="true"
-                    (dragstart)="drag($event, card , tableauColumnIndex)"
+                    (dragstart)="onCardDragged($event, card, tableauColumnIndex)"
                     (drop)="dropToTableauColumn($event, tableauColumnIndex)" (dragover)="allowDrop($event)">
             </div>
         </article>

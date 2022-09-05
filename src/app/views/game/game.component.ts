@@ -31,6 +31,11 @@ export class GameComponent implements OnInit {
         for (let j = 0; j < i + 1; j += 1) {
           const dealtCard = this.stock.pop();
 
+          // Last card is visible in each tableau column
+          if (i === j) {
+            dealtCard.visible = true;
+          }
+
           this.tableau[i].push(dealtCard);
         }
       }
@@ -42,68 +47,70 @@ export class GameComponent implements OnInit {
     this.talon.push(flippedCard);
   }
 
-  drag(event, card: Card, tableauColumnIndex: number) {
+  onCardDragged(event, card: Card, tableauColumnIndexOfDraggedCard?: number) {
     event.dataTransfer.setData("card", JSON.stringify(card));
-    event.dataTransfer.setData("tableauColumnIndex", tableauColumnIndex);
+    event.dataTransfer.setData("tableauColumnIndex", tableauColumnIndexOfDraggedCard);
   }
 
   dropToFoundation(event) {
     event.preventDefault();
 
     const card: Card = JSON.parse(event.dataTransfer.getData("card"));
-    const tableauColumnIndex: number = parseInt(event.dataTransfer.getData("tableauColumnIndex"));
-    const foundationIndex: number = parseInt(event.target.id);
+    const fromTableauColumnIndex: number | undefined = parseInt(event.dataTransfer.getData("tableauColumnIndex"));
+    const toFoundationIndex: number = parseInt(event.target.id);
 
-    this.validateFoundation(foundationIndex, card, tableauColumnIndex);
+    this.validateFoundation(card, toFoundationIndex, fromTableauColumnIndex);
   }
 
-  dropToTableauColumn(event, tableauColumnIndex: number) {
+  dropToTableauColumn(event, toTableauColumnIndex: number) {
     event.preventDefault();
+
     const card: Card = JSON.parse(event.dataTransfer.getData("card"));
-    this.validateTableau(tableauColumnIndex, card);
+    const fromTableauColumnIndex: number | undefined = parseInt(event.dataTransfer.getData("tableauColumnIndex"));
+    this.validateTableau(card, toTableauColumnIndex, fromTableauColumnIndex);
   }
 
   allowDrop(event) {
     event.preventDefault();
   }
 
-  removeTopCardFromTableauColumn = (tableauColumnIndex: number) => this.tableau[tableauColumnIndex].pop();
-
-  removeTopCardFromTalon = () => this.talon.pop();
-
-  private validateFoundation(foundationIndex: number, card: Card, tableauColumnIndex?: number) {
-    const increasing: boolean = this.foundations[foundationIndex].length + 1 === card.value;
-    const foundationIsNotEmpty: boolean = this.foundations[foundationIndex].length !== 0;
+  private validateFoundation(card: Card, toFoundationIndex: number, fromTableauColumnIndex: number | undefined) {
+    const increasing = this.foundations[toFoundationIndex].length + 1 === card.value;
+    const foundationIsNotEmpty = this.foundations[toFoundationIndex].length !== 0;
     let cardTypeIdentical: boolean;
 
     if (foundationIsNotEmpty) {
-      cardTypeIdentical = this.foundations[foundationIndex][0].type === card.type;
+      cardTypeIdentical = this.foundations[toFoundationIndex][0].type === card.type;
     } else {
       cardTypeIdentical = true;
     }
 
     if (increasing && cardTypeIdentical) {
-      if (!isNaN(tableauColumnIndex)) {
-        this.removeTopCardFromTableauColumn(tableauColumnIndex);
-      } else {
-        this.removeTopCardFromTalon();
-      }
-
-      this.foundations[foundationIndex].push(card);
+      this.foundations[toFoundationIndex].push(card);
+      this.cleanupAfterCardIsPlaced(fromTableauColumnIndex);
     }
   }
 
-  private validateTableau(tableauColumnIndex: number, card: Card) {
-    const lastCardInTheTableauColumn =
-      this.tableau[tableauColumnIndex][
-      this.tableau[tableauColumnIndex].length - 1
-      ];
+  private validateTableau(card: Card, toTableauColumnIndex: number, fromTableauColumnIndex: number | undefined) {
+    const lastCardInTheTableauColumn = this.tableau[toTableauColumnIndex][this.tableau[toTableauColumnIndex].length - 1];
     const decreasing = lastCardInTheTableauColumn.value - 1 === card.value;
     const mismatchColor = lastCardInTheTableauColumn.color !== card.color;
 
     if (decreasing && mismatchColor) {
-      this.removeTopCardFromTalon();
-      this.tableau[tableauColumnIndex].push(card);
+      this.tableau[toTableauColumnIndex].push(card);
+      this.cleanupAfterCardIsPlaced(fromTableauColumnIndex);
     }
   }
+
+  private cleanupAfterCardIsPlaced(fromTableauColumnIndex: number | undefined) {
+    if (!isNaN(fromTableauColumnIndex)) { // If the card is lifted from a tableau column
+      this.removeTopCardFromTableauColumn(fromTableauColumnIndex);
+    } else { // If the card is lifted from a talon
+      this.removeTopCardFromTalon();
+    }
+  }
+
+  private removeTopCardFromTableauColumn = (tableauColumnIndex: number) => this.tableau[tableauColumnIndex].pop();
+
+  private removeTopCardFromTalon = () => this.talon.pop();
 }
