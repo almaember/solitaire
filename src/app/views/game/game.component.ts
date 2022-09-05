@@ -8,8 +8,8 @@ import { Card } from "src/app/model/card";
   styleUrls: ["./game.component.scss"],
 })
 export class GameComponent implements OnInit {
-  stock: Card[];
-  talon: Card[] = [];
+  stock: Card[] = [];
+  talon: Card[] = []; // waste
   tableau: [Card[]] = Array.apply(null, Array(7)).map(function () {
     return [];
   });
@@ -79,6 +79,14 @@ export class GameComponent implements OnInit {
     if (isLast) {
       card.visible = true;
     }
+  }
+
+  onReuseTalon() {
+    // TODO:
+    // Itt azt kell csinálni, hogy a felfordított talonból a lapok sorrendjét megcserélem 
+    // Utána pedig visible false mindre
+    this.stock = this.talon;
+    this.talon = [];
   }
 
   private validateFoundation(card: Card, toFoundationIndex: number, fromTableauColumnIndex: number | undefined) {
