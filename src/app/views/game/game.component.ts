@@ -44,6 +44,7 @@ export class GameComponent implements OnInit {
 
   flipACardFromAStock() {
     const flippedCard = this.stock.pop();
+    flippedCard.visible = true;
     this.talon.push(flippedCard);
   }
 
