@@ -17,7 +17,7 @@ export class GameComponent implements OnInit {
     return [];
   });
 
-  constructor(private cardService: CardsService) {}
+  constructor(private cardService: CardsService) { }
 
   ngOnInit() {
     this.cardService.cards.subscribe((deck) => {
@@ -51,9 +51,7 @@ export class GameComponent implements OnInit {
     event.preventDefault();
 
     const card: Card = JSON.parse(event.dataTransfer.getData("card"));
-    const tableauColumnIndex: number = parseInt(
-      event.dataTransfer.getData("tableauColumnIndex")
-    );
+    const tableauColumnIndex: number = parseInt(event.dataTransfer.getData("tableauColumnIndex"));
     const foundationIndex: number = parseInt(event.target.id);
 
     this.validateFoundation(foundationIndex, card, tableauColumnIndex);
@@ -69,25 +67,17 @@ export class GameComponent implements OnInit {
     event.preventDefault();
   }
 
-  removeTopCardFromTableauColumn = (tableauColumnIndex: number) =>
-    this.tableau[tableauColumnIndex].pop();
+  removeTopCardFromTableauColumn = (tableauColumnIndex: number) => this.tableau[tableauColumnIndex].pop();
 
   removeTopCardFromTalon = () => this.talon.pop();
 
-  validateFoundation(
-    foundationIndex: number,
-    card: Card,
-    tableauColumnIndex?: number
-  ) {
-    const increasing: boolean =
-      this.foundations[foundationIndex].length + 1 === card.value;
-    const foundationIsNotEmpty: boolean =
-      this.foundations[foundationIndex].length !== 0;
+  private validateFoundation(foundationIndex: number, card: Card, tableauColumnIndex?: number) {
+    const increasing: boolean = this.foundations[foundationIndex].length + 1 === card.value;
+    const foundationIsNotEmpty: boolean = this.foundations[foundationIndex].length !== 0;
     let cardTypeIdentical: boolean;
 
     if (foundationIsNotEmpty) {
-      cardTypeIdentical =
-        this.foundations[foundationIndex][0].type === card.type;
+      cardTypeIdentical = this.foundations[foundationIndex][0].type === card.type;
     } else {
       cardTypeIdentical = true;
     }
@@ -103,10 +93,10 @@ export class GameComponent implements OnInit {
     }
   }
 
-  validateTableau(tableauColumnIndex: number, card: Card) {
+  private validateTableau(tableauColumnIndex: number, card: Card) {
     const lastCardInTheTableauColumn =
       this.tableau[tableauColumnIndex][
-        this.tableau[tableauColumnIndex].length - 1
+      this.tableau[tableauColumnIndex].length - 1
       ];
     const decreasing = lastCardInTheTableauColumn.value - 1 === card.value;
     const mismatchColor = lastCardInTheTableauColumn.color !== card.color;
