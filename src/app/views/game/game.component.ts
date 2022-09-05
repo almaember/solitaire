@@ -74,6 +74,12 @@ export class GameComponent implements OnInit {
     event.preventDefault();
   }
 
+  setLastTableauColumnCardToVisible(card: Card, isLast: boolean) {
+    if (isLast) {
+      card.visible = true;
+    }
+  }
+
   private validateFoundation(card: Card, toFoundationIndex: number, fromTableauColumnIndex: number | undefined) {
     const increasing = this.foundations[toFoundationIndex].length + 1 === card.value;
     const foundationIsNotEmpty = this.foundations[toFoundationIndex].length !== 0;

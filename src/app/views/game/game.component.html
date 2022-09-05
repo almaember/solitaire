@@ -27,9 +27,10 @@
     <article id="bottomTable" class="flex">
         <article id="tableauColumn" *ngFor="let column of tableau; let tableauColumnIndex = index"
             class="margin-right-md">
-            <div *ngFor="let card of column; first as isFirst" [ngClass]="{'cards-on-top-of-each-other':!isFirst}">
+            <div *ngFor="let card of column; first as isFirst; last as isLast"
+                [ngClass]="{'cards-on-top-of-each-other':!isFirst}">
                 <img *ngIf="!card.visible" class="card-size" src="assets/img/cardBack/Card_back_01.svg"
-                    alt="Tableau card">
+                    alt="Tableau card" (click)="setLastTableauColumnCardToVisible(card, isLast)">
                 <img *ngIf="card.visible" class="card-size" id="{{card.cardName}}"
                     src="assets/img/cards/{{card.cardName}}.svg" alt="Tableau card" draggable="true"
                     (dragstart)="onCardDragged($event, card, tableauColumnIndex)"
