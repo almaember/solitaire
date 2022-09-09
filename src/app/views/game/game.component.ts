@@ -1,11 +1,11 @@
-import { Component, OnInit } from "@angular/core";
-import { CardsService } from "src/app/services/cards.service";
-import { Card } from "src/app/model/card";
+import { Component, OnInit } from '@angular/core';
+import { CardsService } from 'src/app/services/cards.service';
+import { Card } from 'src/app/model/card';
 
 @Component({
-  selector: "app-game",
-  templateUrl: "./game.component.html",
-  styleUrls: ["./game.component.scss"],
+  selector: 'app-game',
+  templateUrl: './game.component.html',
+  styleUrls: ['./game.component.scss'],
 })
 export class GameComponent implements OnInit {
   stock: Card[] = [];
@@ -48,27 +48,44 @@ export class GameComponent implements OnInit {
     this.talon.push(flippedCard);
   }
 
-  onCardDragged(event, card: Card, tableauColumnIndexOfDraggedCard?: number) {
-    event.dataTransfer.setData("card", JSON.stringify(card));
-    event.dataTransfer.setData("tableauColumnIndex", tableauColumnIndexOfDraggedCard);
+  onTalonCardDragged(event, card: Card) {
+    event.dataTransfer.setData('draggedCards', JSON.stringify([card]));
+  }
+
+  onTableauCardDragged(event, card: Card, cardIndex: number, tableauColumnIndexOfDraggedCard: number) {
+    const singleCardDragged = this.tableau[tableauColumnIndexOfDraggedCard].length === cardIndex + 1;
+    if (singleCardDragged) {
+      event.dataTransfer.setData('draggedCards', JSON.stringify([card]));
+    } else {
+      // Multiple card dragged
+      const draggedCards = this.tableau[tableauColumnIndexOfDraggedCard].filter((card, index) => index >= cardIndex);
+      event.dataTransfer.setData('draggedCards', JSON.stringify(draggedCards));
+    }
+
+    event.dataTransfer.setData('tableauColumnIndexOfDraggedCard', tableauColumnIndexOfDraggedCard);
   }
 
   dropToFoundation(event) {
     event.preventDefault();
 
-    const card: Card = JSON.parse(event.dataTransfer.getData("card"));
-    const fromTableauColumnIndex: number | undefined = parseInt(event.dataTransfer.getData("tableauColumnIndex"));
+    const cards: Card[] = JSON.parse(event.dataTransfer.getData('draggedCards')); // TODO: itt nem engedhetjük, hogy több kártya érkezzen meg ide
+    const fromTableauColumnIndex: number | undefined = parseInt(event.dataTransfer.getData('tableauColumnIndexOfDraggedCard'));
     const toFoundationIndex: number = parseInt(event.target.id);
 
-    this.validateFoundation(card, toFoundationIndex, fromTableauColumnIndex);
+    if (cards.length > 1) {
+      throw new Error('Cards can only be placed one at a time! ' + cards);
+    }
+
+    this.validateFoundation(cards[0], toFoundationIndex, fromTableauColumnIndex);
   }
 
   dropToTableauColumn(event, toTableauColumnIndex: number) {
     event.preventDefault();
 
-    const card: Card = JSON.parse(event.dataTransfer.getData("card"));
-    const fromTableauColumnIndex: number | undefined = parseInt(event.dataTransfer.getData("tableauColumnIndex"));
-    this.validateTableau(card, toTableauColumnIndex, fromTableauColumnIndex);
+    const cards: Card[] = JSON.parse(event.dataTransfer.getData('draggedCards'));
+    const fromTableauColumnIndex: number | undefined = parseInt(event.dataTransfer.getData('tableauColumnIndexOfDraggedCard'));
+
+    this.validateTableau(cards, toTableauColumnIndex, fromTableauColumnIndex);
   }
 
   allowDrop(event) {
@@ -82,10 +99,9 @@ export class GameComponent implements OnInit {
   }
 
   onReuseTalon() {
-    // TODO:
-    // Itt azt kell csinálni, hogy a felfordított talonból a lapok sorrendjét megcserélem 
-    // Utána pedig visible false mindre
     this.stock = this.talon;
+    this.stock.reverse();
+    this.stock.forEach(card => card.visible = false);
     this.talon = [];
   }
 
@@ -106,26 +122,31 @@ export class GameComponent implements OnInit {
     }
   }
 
-  private validateTableau(card: Card, toTableauColumnIndex: number, fromTableauColumnIndex: number | undefined) {
+  private validateTableau(cards: Card[], toTableauColumnIndex: number, fromTableauColumnIndex: number | undefined) {
     const lastCardInTheTableauColumn = this.tableau[toTableauColumnIndex][this.tableau[toTableauColumnIndex].length - 1];
-    const decreasing = lastCardInTheTableauColumn.value - 1 === card.value;
-    const mismatchColor = lastCardInTheTableauColumn.color !== card.color;
+    const decreasing = lastCardInTheTableauColumn.value - 1 === cards[0].value;
+    const mismatchColor = lastCardInTheTableauColumn.color !== cards[0].color;
 
     if (decreasing && mismatchColor) {
-      this.tableau[toTableauColumnIndex].push(card);
-      this.cleanupAfterCardIsPlaced(fromTableauColumnIndex);
+      this.tableau[toTableauColumnIndex].push(...cards);
+      this.cleanupAfterCardIsPlaced(fromTableauColumnIndex, cards.length);
     }
   }
 
-  private cleanupAfterCardIsPlaced(fromTableauColumnIndex: number | undefined) {
-    if (!isNaN(fromTableauColumnIndex)) { // If the card is lifted from a tableau column
-      this.removeTopCardFromTableauColumn(fromTableauColumnIndex);
+  private cleanupAfterCardIsPlaced(fromTableauColumnIndex: number | undefined, numberOfCardsToRemove?: number) {
+    if (!isNaN(fromTableauColumnIndex)) { // If the card is lifted from a tableau column     
+      if (numberOfCardsToRemove === undefined) {
+        this.tableau[fromTableauColumnIndex].pop();
+      } else {
+        for (let i = 0; i < numberOfCardsToRemove; i++) {
+          this.tableau[fromTableauColumnIndex].pop();
+        }
+      }
     } else { // If the card is lifted from a talon
-      this.removeTopCardFromTalon();
+      // Remove top card from talon
+      this.talon.pop();
     }
   }
 
-  private removeTopCardFromTableauColumn = (tableauColumnIndex: number) => this.tableau[tableauColumnIndex].pop();
 
-  private removeTopCardFromTalon = () => this.talon.pop();
 }
