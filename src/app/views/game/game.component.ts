@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CardsService } from 'src/app/services/cards.service';
-import { Card } from 'src/app/model/card';
+import { Card, CardValue } from 'src/app/model/card';
 
 @Component({
   selector: 'app-game',
@@ -98,7 +98,7 @@ export class GameComponent implements OnInit {
     }
   }
 
-  onReuseTalon() {
+  reuseTalon() {
     this.stock = this.talon;
     this.stock.reverse();
     this.stock.forEach(card => card.visible = false);
@@ -124,6 +124,13 @@ export class GameComponent implements OnInit {
 
   private validateTableau(cards: Card[], toTableauColumnIndex: number, fromTableauColumnIndex: number | undefined) {
     const lastCardInTheTableauColumn = this.tableau[toTableauColumnIndex][this.tableau[toTableauColumnIndex].length - 1];
+
+    if (lastCardInTheTableauColumn === undefined && cards[0].value === CardValue.KING) {
+      this.tableau[toTableauColumnIndex].push(...cards);
+      this.cleanupAfterCardIsPlaced(fromTableauColumnIndex, cards.length);
+      return;
+    }
+
     const decreasing = lastCardInTheTableauColumn.value - 1 === cards[0].value;
     const mismatchColor = lastCardInTheTableauColumn.color !== cards[0].color;
 

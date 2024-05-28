@@ -7,8 +7,7 @@
                 <img class="card-size" src="assets/img/cardBack/Card_back_01.svg" alt="Stock" draggable="false">
             </div>
             <div *ngIf="stock.length === 0"
-                class="card-size card-placeholder card-placeholder__empty-stock margin-right-sm"
-                (click)="onReuseTalon()">
+                class="card-size card-placeholder card-placeholder__empty-stock margin-right-sm" (click)="reuseTalon()">
             </div>
 
             <!-- Talon / waste -->
@@ -36,6 +35,9 @@
     <article id="bottomTable" class="flex">
         <!-- Tableau -->
         <div id="tableauColumn" *ngFor="let column of tableau; let tableauColumnIndex = index" class="margin-right-md">
+            <div *ngIf="column.length === 0" (drop)="dropToTableauColumn($event, tableauColumnIndex)"
+                (dragover)="allowDrop($event)" class="card-size card-placeholder card-placeholder__foundation">
+            </div>
             <div *ngFor="let card of column; let cardIndex = index; first as isFirst; last as isLast"
                 [ngClass]="{'cards-on-top-of-each-other':!isFirst}">
                 <img *ngIf="!card.visible" class="card-size" src="assets/img/cardBack/Card_back_01.svg"
