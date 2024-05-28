@@ -42,6 +42,20 @@ export class GameComponent implements OnInit {
     };
   }
 
+  classForCardsTopOfEachOther(isFirst: boolean, card: Card, cards: Card[], cardIndex: number) {
+    if (!isFirst && !card.visible) {
+      return 'cards-on-top-of-each-other';
+    }
+
+    if (!isFirst && card.visible && !cards[cardIndex - 1].visible) {
+      return "cards-on-top-of-each-other";
+    }
+
+    if (!isFirst && card.visible && cards[cardIndex - 1].visible) {
+      return "cards-on-top-of-each-other--space-large";
+    }
+  }
+
   flipACardFromAStock() {
     const flippedCard = this.stock.pop();
     flippedCard.visible = true;

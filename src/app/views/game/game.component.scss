@@ -23,9 +23,12 @@
   }
 }
 
-
 .cards-on-top-of-each-other {
-  margin-top: -14vw;
+  margin-top: -17rem;
+
+  &--space-large {
+    margin-top: -16rem;
+  }
 }
 
 .top-table-margin-bottom-lg {

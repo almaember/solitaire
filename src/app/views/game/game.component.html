@@ -39,7 +39,7 @@
                 (dragover)="allowDrop($event)" class="card-size card-placeholder card-placeholder__foundation">
             </div>
             <div *ngFor="let card of column; let cardIndex = index; first as isFirst; last as isLast"
-                [ngClass]="{'cards-on-top-of-each-other':!isFirst}">
+                [ngClass]="classForCardsTopOfEachOther(isFirst,card, column, cardIndex)">
                 <img *ngIf="!card.visible" class="card-size" src="assets/img/cardBack/Card_back_01.svg"
                     alt="Tableau card" (click)="setLastTableauColumnCardToVisible(card, isLast)" draggable="false">
                 <img *ngIf="card.visible" class="card-size" id="{{card.cardName}}"
